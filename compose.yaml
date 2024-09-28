@@ -1,0 +1,30 @@
+services:
+  web:
+    build: .
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app:cached
+      - bundle:/usr/local/bundle
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432
+      EDITOR: vi
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:17.0
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: pg_isready -U postgres -h 127.0.0.1
+      interval: 5s
+volumes:
+  bundle:
+  postgres:
